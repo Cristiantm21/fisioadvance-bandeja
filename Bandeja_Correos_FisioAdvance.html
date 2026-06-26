@@ -462,14 +462,15 @@ async function cargarDatos() {
       mostrarVacio(); return;
     }
 
-    // Extraer headers
-    const headers = table.cols.map(c => c.label || c.id);
+    // Extraer headers — gviz usa la primera fila como labels
+    const headers = table.cols.map(c => (c.label && c.label.trim()) ? c.label.trim() : c.id);
 
     // Extraer filas
     datos = table.rows.map((row, i) => {
       const obj = {};
       headers.forEach((h, j) => {
-        obj[h] = row.c[j]?.v ?? row.c[j]?.f ?? '';
+        const cell = row.c ? row.c[j] : null;
+        obj[h] = cell ? (cell.v !== null && cell.v !== undefined ? String(cell.v) : '') : '';
       });
       obj._rowIndex = i + 2;
       return obj;
